@@ -23,6 +23,18 @@ const updateTask = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error("Task not found")
     }
+
+    const user = await User.findById(req.params.user.id)
+    if (!user) {
+        res.status(400)
+        throw new Error("No such user found")
+    }
+
+    if(task.user.toString() != user.id){
+        res.status(401)
+        throw new Error("User is not authorized to update")
+    }
+
     const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.status(200).json(updatedTask);
 })
@@ -33,6 +45,17 @@ const deleteTask = asyncHandler(async(req, res) => {
             res.status(400)
             throw new Error("Task not found")
         }
+
+    const user = await User.findById(req.params.user.id)
+    if (!user) {
+        res.status(400)
+        throw new Error("No such user found")
+    }
+
+    if(task.user.toString() != user.id){
+        res.status(401)
+        throw new Error("User is not authorized to delete")
+    }
 
         await Task.findByIdAndDelete(req.params.id)
         res.status(200).json({ id: req.params.id });
